@@ -11,8 +11,8 @@ export default defineConfig({
       },
       registerType: "autoUpdate",
       manifest: {
-        background_color: "#000",
-        theme_color: "#fff",
+        background_color: "#fff",
+        theme_color: "#8400ff",
         name: "Celeste Tuner",
         start_url: "/",
         display: "standalone",

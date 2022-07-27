@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Tuner from "./lib/Tuner.svelte";
+  import TunerPage from "./components/TunerPage.svelte";
 
   import { slide } from "svelte/transition";
   import { useRegisterSW } from "virtual:pwa-register/svelte";
@@ -36,7 +36,7 @@
   </div>
 {/if}
 <main>
-  <Tuner />
+  <TunerPage />
 </main>
 
 <style lang="scss">

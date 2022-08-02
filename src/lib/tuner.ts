@@ -1,5 +1,15 @@
+interface TunerOpts {
+  sensitivity: number;
+}
+
+interface state {
+  pitch: number;
+  deviation: number;
+  note: Note;
+}
+
 // string array of 9 octaves of notes
-export const noteStrings = [
+const noteStrings = [
   "C",
   "C#",
   "D",
@@ -32,6 +42,17 @@ export class Tuner {
   // false if note was ignored
   private isConfident: boolean = false;
 
+  state: state = {
+    pitch: 440,
+    deviation: 0,
+    note: {
+      Name: "A",
+      Octave: 4,
+    },
+  };
+
+  noteHistory: Note[] = [];
+
   // defines the sensitivity of the algorithm
   // higher value means lower sensitivity
   sensitivity: number = 0.02; // default is 0.02
@@ -40,27 +61,12 @@ export class Tuner {
   // in Western musical scale
   private readonly octaveLength: number = 12;
 
-  // pitch is the same as frequency, just different names
-  pitch: number = 0;
-
-  // the amount of frequency between the detected note that is the closest to the frequency
-  // imagine note A4. it has the frequency of 440 Hz. if the frequency of the sound is 430 Hz
-  // it's still the same note which is A4. but with -10 Hz of deviation.
-  deviation: number = 0;
-
-  // the name of the note which is chosen from noteStrings array
-  note: Note = {
-    Name: "A",
-    Octave: 4,
-  };
-
-  // array for storing the previous detected notes
-  noteHistory: Note[] = [];
-
   // the constant length of noteHistory
   private readonly historyLength = 10;
 
-  constructor() {}
+  constructor(opts: TunerOpts) {
+    this.sensitivity = opts.sensitivity;
+  }
 
   // converts frequency to note
   // frequency of 440 will be converted to note 'A'
@@ -153,8 +159,8 @@ export class Tuner {
   private buf = new Float32Array(this.buflen);
 
   // updates the note using requestAnimationFrame
+  // should be an array function to avoid "Cannot read properties of undefined" error
   private updatePitch = () => {
-    console.log("done");
     this.analyser.getFloatTimeDomainData(this.buf);
     let ac = this.autoCorrelate(this.buf, this.audioContext.sampleRate);
 
@@ -163,13 +169,14 @@ export class Tuner {
       this.isConfident = false;
     } else {
       this.isConfident = true;
-      this.pitch = ac;
+      this.state.pitch = ac;
 
       // the index of the detected note
-      let noteIdx = this.noteFromPitch(this.pitch);
+      let noteIdx = this.noteFromPitch(this.state.pitch);
 
       if (
-        this.note?.Name !== this.noteHistory[this.noteHistory.length - 1]?.Name
+        this.state.note?.Name !==
+        this.noteHistory[this.noteHistory.length - 1]?.Name
       ) {
         // keep the length of the array fixed
         if (this.noteHistory.length === this.historyLength) {
@@ -180,15 +187,21 @@ export class Tuner {
         // new note detected, push it to history array
         this.noteHistory = [
           ...this.noteHistory,
-          { Name: this.note?.Name, Octave: this.note.Octave },
+          {
+            Name: this.state.note?.Name,
+            Octave: this.state.note.Octave,
+          },
         ];
       }
 
       // noteIdx % noteString.length(108) is one octave high (because octaves start from 0)
       // "- 1" decreases one octave
-      this.note.Name = noteStrings[noteIdx % noteStrings.length];
-      this.note.Octave = Math.floor(noteIdx / this.octaveLength) - 1;
-      this.deviation = this.centsOffFromPitch(this.pitch, noteIdx); // deviation from original note frequency
+      this.state.note = {
+        Name: noteStrings[noteIdx % noteStrings.length],
+        Octave: Math.floor(noteIdx / this.octaveLength) - 1,
+      };
+      this.state.deviation = this.centsOffFromPitch(this.state.pitch, noteIdx); // deviation from original note frequency
+      console.log(this.state);
     }
     requestAnimationFrame(this.updatePitch);
   };
@@ -239,3 +252,6 @@ export class Tuner {
     this.getUserMedia();
   }
 }
+
+export { noteStrings };
+export type { TunerOpts };

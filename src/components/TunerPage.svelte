@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { noteStrings, Tuner } from "../lib/tuner";
+  import { noteStrings, state, Tuner } from "../lib/tuner";
 
   // boolean to control settings window display
   let showSettings: boolean = false;
@@ -19,28 +19,28 @@
 
 <div class="ac-demo">
   <div class="state">
-    {#if Math.abs(tuner.state.deviation) < 10}
+    {#if Math.abs(state.deviation) < 10}
       <p
         style="color: #00ff00; text-shadow: 0px 0px 30px #00ff00dd;"
         class="note-state"
       >
         Spot on!
       </p>
-    {:else if Math.abs(tuner.state.deviation) < 20}
+    {:else if Math.abs(state.deviation) < 20}
       <p
         style="color: #1eff1e; text-shadow: 0px 0px 30px #1eff1edd;"
         class="note-state"
       >
         Tuned!
       </p>
-    {:else if tuner.state.deviation <= 20}
+    {:else if state.deviation <= 20}
       <p
         style="color: #ff0000; text-shadow: 0px 0px 30px #ff0000dd;"
         class="note-state"
       >
         Low
       </p>
-    {:else if tuner.state.deviation >= 20}
+    {:else if state.deviation >= 20}
       <p
         style="color: #ff0000; text-shadow: 0px 0px 30px #ff0000dd;"
         class="note-state"
@@ -50,37 +50,36 @@
     {/if}
   </div>
   <div class="info">
-    <p class="deviation">Deviation: {tuner.state.deviation} Hz</p>
-    <p class="freq">Frequency: {tuner.state.pitch.toFixed(1)} Hz</p>
+    <p class="deviation">Deviation: {state.deviation} Hz</p>
+    <p class="freq">Frequency: {state.pitch.toFixed(1)} Hz</p>
   </div>
   <ul class="notes-display">
     {#each noteStrings as noteName}
       <li class="note-column">
         <div
-          class="note-column_indicator {noteName === tuner.state.note?.Name
+          class="note-column_indicator {noteName === state.note?.Name
             ? 'indicated'
             : ''}"
         >
           <div class="center" />
-          {#if tuner.state.deviation > 0}
+          {#if state.deviation > 0}
             <div
               class="deviation_high"
-              style="height: {(Math.abs(tuner.state.deviation) / 50) * 100}%;"
+              style="height: {(Math.abs(state.deviation) / 50) * 100}%;"
             />
-          {:else if tuner.state.deviation < 0}
+          {:else if state.deviation < 0}
             <div
               class="deviation_low"
-              style="height: {(Math.abs(tuner.state.deviation) / 50) * 100 -
-                50}%;"
+              style="height: {(Math.abs(state.deviation) / 50) * 100 - 50}%;"
             />
           {/if}
         </div>
         <p
-          class="note-column_name {noteName === tuner.state.note?.Name
+          class="note-column_name {noteName === state.note?.Name
             ? 'indicated'
             : ''}"
         >
-          {noteName + tuner.state.note.Octave}
+          {noteName + state.note.Octave}
         </p>
       </li>
     {/each}

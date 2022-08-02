@@ -8,6 +8,15 @@ interface state {
   note: Note;
 }
 
+export let state: state = {
+  pitch: 440,
+  deviation: 0,
+  note: {
+    Name: "A",
+    Octave: 4,
+  },
+};
+
 // string array of 9 octaves of notes
 const noteStrings = [
   "C",
@@ -41,15 +50,6 @@ export class Tuner {
 
   // false if note was ignored
   private isConfident: boolean = false;
-
-  state: state = {
-    pitch: 440,
-    deviation: 0,
-    note: {
-      Name: "A",
-      Octave: 4,
-    },
-  };
 
   noteHistory: Note[] = [];
 
@@ -169,14 +169,13 @@ export class Tuner {
       this.isConfident = false;
     } else {
       this.isConfident = true;
-      this.state.pitch = ac;
+      state.pitch = ac;
 
       // the index of the detected note
-      let noteIdx = this.noteFromPitch(this.state.pitch);
+      let noteIdx = this.noteFromPitch(state.pitch);
 
       if (
-        this.state.note?.Name !==
-        this.noteHistory[this.noteHistory.length - 1]?.Name
+        state.note?.Name !== this.noteHistory[this.noteHistory.length - 1]?.Name
       ) {
         // keep the length of the array fixed
         if (this.noteHistory.length === this.historyLength) {
@@ -188,20 +187,23 @@ export class Tuner {
         this.noteHistory = [
           ...this.noteHistory,
           {
-            Name: this.state.note?.Name,
-            Octave: this.state.note.Octave,
+            Name: state.note?.Name,
+            Octave: state.note.Octave,
           },
         ];
       }
 
       // noteIdx % noteString.length(108) is one octave high (because octaves start from 0)
       // "- 1" decreases one octave
-      this.state.note = {
-        Name: noteStrings[noteIdx % noteStrings.length],
-        Octave: Math.floor(noteIdx / this.octaveLength) - 1,
+      state = {
+        pitch: state.pitch,
+        note: {
+          Name: noteStrings[noteIdx % noteStrings.length],
+          Octave: Math.floor(noteIdx / this.octaveLength) - 1,
+        },
+        deviation: this.centsOffFromPitch(state.pitch, noteIdx), // deviation from original note frequency
       };
-      this.state.deviation = this.centsOffFromPitch(this.state.pitch, noteIdx); // deviation from original note frequency
-      console.log(this.state);
+      console.log(state);
     }
     requestAnimationFrame(this.updatePitch);
   };

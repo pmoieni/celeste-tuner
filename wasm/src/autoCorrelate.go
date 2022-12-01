@@ -78,8 +78,6 @@ func autoCorrelate(sampleRate, thres float64) Pitch {
 		d++
 	}
 
-	fmt.Printf("d: %d\n", d)
-
 	maxVal := -1.0
 	maxPos := -1
 
@@ -91,6 +89,11 @@ func autoCorrelate(sampleRate, thres float64) Pitch {
 	}
 
 	t0 := maxPos
+
+	// Handle case when d is already out-of-bounds of c
+	if maxPos < 1 {
+		return -1
+	}
 
 	x1 := c[t0-1]
 	x2 := c[t0]

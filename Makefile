@@ -1,5 +1,5 @@
-	main: clean wasm_exec
-	tinygo build -o ./public/wasm/wasm.wasm -target wasm -no-debug ./wasm/src/wasm.go
+main: clean wasm_exec
+	tinygo build -o ./public/wasm/wasm.wasm -target wasm -no-debug ./wasm/src/autoCorrelate.go
 	# cp ./main/index.html ./html/
 	cp ./wasm/src/wasm.js ./public/wasm/
 

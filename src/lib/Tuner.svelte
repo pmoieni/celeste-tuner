@@ -202,11 +202,19 @@
   // array for received buffer of audio
   let buflen = 2048;
   let buf = new Float32Array(buflen);
-
   // updates the note using requestAnimationFrame
   function updatePitch() {
+    const wasmMemory = new Float32Array(wasm.exports.memory.buffer);
+    const wasmMemoryPtr = wasm.exports.getBufferPointer();
     analyser.getFloatTimeDomainData(buf);
     let ac = autoCorrelate(buf, audioContext.sampleRate);
+
+    wasmMemory.set(buf, wasmMemoryPtr / wasmMemory.BYTES_PER_ELEMENT);
+    let acwasm = wasm.exports.autoCorrelate(audioContext.sampleRate, 0.2);
+
+    if (ac !== acwasm) {
+      console.log({ ac, acwasm, diff: ac - acwasm });
+    }
 
     if (ac == -1) {
       // note was ignored

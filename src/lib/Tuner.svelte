@@ -206,18 +206,10 @@
   function updatePitch() {
     const wasmMemory = new Float32Array(wasm.exports.memory.buffer);
     const wasmMemoryPtr = wasm.exports.getBufferPointer();
-    analyser.getFloatTimeDomainData(buf);
-    let ac = autoCorrelate(buf, audioContext.sampleRate);
-
     wasmMemory.set(buf, wasmMemoryPtr / wasmMemory.BYTES_PER_ELEMENT);
-    let acwasm = wasm.exports.autoCorrelate(
-      audioContext.sampleRate,
-      sensitivity
-    );
 
-    if (ac !== acwasm) {
-      console.log({ ac, acwasm, diff: ac - acwasm });
-    }
+    analyser.getFloatTimeDomainData(buf);
+    let ac = wasm.exports.autoCorrelate(audioContext.sampleRate, sensitivity);
 
     if (ac == -1) {
       // note was ignored

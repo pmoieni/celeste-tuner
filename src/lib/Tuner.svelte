@@ -206,9 +206,14 @@
   function updatePitch() {
     const wasmMemory = new Float32Array(wasm.exports.memory.buffer);
     const wasmMemoryPtr = wasm.exports.getBufferPointer();
+
+    // Get a slice of the wasm memory that points to the buffer created in Go.
+    // Since the buffer is a Float32Array, we need to divide the byte offset by 4. (4 bytes per float)
     wasmMemory.set(buf, wasmMemoryPtr / wasmMemory.BYTES_PER_ELEMENT);
 
+    // Copy the current audio to buf. Since we set the buffer location to the wasm memory, it's accessible from Go.
     analyser.getFloatTimeDomainData(buf);
+    // It may be more clear to pass a pointer to autoCorrelate, instead of using closures in Go.
     let ac = wasm.exports.autoCorrelate(audioContext.sampleRate, sensitivity);
 
     if (ac == -1) {

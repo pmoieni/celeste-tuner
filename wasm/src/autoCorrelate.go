@@ -56,7 +56,7 @@ func autoCorrelate(sampleRate, thres float64) Pitch {
 		}
 	}
 
-	for i := 0; i < size/2; i++ {
+	for i := 1; i < size/2; i++ {
 		if math.Abs(float64(buf[size-i])) < thres {
 			r2 = size - i
 			break
@@ -74,21 +74,23 @@ func autoCorrelate(sampleRate, thres float64) Pitch {
 	}
 
 	d := 0
-	for c[d] > c[d+1] {
+	for d < size-2 && c[d] > c[d+1] {
 		d++
 	}
 
-	mv := -1.0
-	mp := -1
+	fmt.Printf("d: %d\n", d)
+
+	maxVal := -1.0
+	maxPos := -1
 
 	for i := d; i < size; i++ {
-		if float64(c[i]) > mv {
-			mv = float64(c[i])
-			mp = i
+		if float64(c[i]) > maxVal {
+			maxVal = float64(c[i])
+			maxPos = i
 		}
 	}
 
-	t0 := mp
+	t0 := maxPos
 
 	x1 := c[t0-1]
 	x2 := c[t0]

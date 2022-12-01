@@ -210,7 +210,10 @@
     let ac = autoCorrelate(buf, audioContext.sampleRate);
 
     wasmMemory.set(buf, wasmMemoryPtr / wasmMemory.BYTES_PER_ELEMENT);
-    let acwasm = wasm.exports.autoCorrelate(audioContext.sampleRate, 0.2);
+    let acwasm = wasm.exports.autoCorrelate(
+      audioContext.sampleRate,
+      sensitivity
+    );
 
     if (ac !== acwasm) {
       console.log({ ac, acwasm, diff: ac - acwasm });

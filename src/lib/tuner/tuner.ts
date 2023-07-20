@@ -49,10 +49,7 @@ class Tuner {
         deviation: 0,
     });
 
-    constructor(audioContext: AudioContext) {
-        this.audioContext = audioContext;
-        console.log(audioContext);
-
+    constructor() {
         this.state.subscribe((v) => {
             this._state = v;
         });
@@ -61,7 +58,7 @@ class Tuner {
     // converts frequency to note
     // frequency of 440 will be converted to note 'A'
     // more info: https://alijamieson.co.uk/2021/12/20/describing-relationship-two-notes/#:~:text=An%20octave%20is%20an%20intervals,A5%20would%20be%20880%20Hz.
-    private noteFromPitch(frequency) {
+    private noteFromPitch = (frequency: number) => {
         var noteNum =
             this.octaveLength * (Math.log(frequency / 440) / this.logOfTwo);
         return Math.round(noteNum) + 69;
@@ -69,8 +66,8 @@ class Tuner {
 
     // note: the number 69 corresponds to the pitch A4
     // more info: https://www.audiolabs-erlangen.de/resources/MIR/FMP/C1/C1S3_FrequencyPitch.html
-    private frequencyFromNoteNumber(note) {
-        return 440 * Math.pow(2, (note - 69) / this.octaveLength);
+    private frequencyFromNoteNumber = (noteMIDI: number) => {
+        return 440 * Math.pow(2, (noteMIDI - 69) / this.octaveLength);
     }
 
     // an octave has 12 notes and 1200 cents
@@ -78,16 +75,16 @@ class Tuner {
     // cents off from pitch gives us the deviation from the detected note
     // if it's higher than 50 or lower than -50 it means we have entered the bounds of the other notes
     // eg: out of tune
-    private centsOffFromPitch(frequency, note) {
+    private centsOffFromPitch = (frequency: number, noteMIDI: number) => {
         return Math.floor(
             (this.octaveLength *
                 100 *
-                Math.log(frequency / this.frequencyFromNoteNumber(note))) /
-                this.logOfTwo
+                Math.log(frequency / this.frequencyFromNoteNumber(noteMIDI))) /
+            this.logOfTwo
         );
     }
 
-    private getPitch(buf, sampleRate) {
+    private getPitch = (buf, sampleRate) => {
         // Implements the ACF2+ algorithm
         let SIZE = buf.length;
         let rms = 0;
@@ -146,7 +143,7 @@ class Tuner {
         return sampleRate / T0;
     }
 
-    private updatePitch() {
+    private updatePitch = () => {
         this.analyser.getFloatTimeDomainData(this.buf);
         let pitch = this.getPitch(this.buf, this.audioContext.sampleRate);
 
@@ -167,7 +164,33 @@ class Tuner {
         requestAnimationFrame(this.updatePitch);
     }
 
-    async init() {
+    private gotStream = (stream: MediaStream) => {
+        // run the necessary commands when permission was granted
+        // Create an AudioNode from the stream.
+        // this is the stream of sound received from microphone
+        this.mediaStreamSource =
+            this.audioContext.createMediaStreamSource(stream);
+
+        // Connect it to the destination.
+        // this is like the tools needed for analaysing the sound buffer
+        // more info here: https://developer.mozilla.org/en-US/docs/Web/API/BaseAudioContext/createAnalyser
+        this.analyser = this.audioContext.createAnalyser();
+        this.analyser.fftSize = this.buflen;
+
+        // connect the analyser to audio stream
+        this.mediaStreamSource.connect(this.analyser);
+        this._state.loading = false;
+
+        this.updatePitch();
+    }
+
+    init = async () => {
+        this.audioContext = new (window.AudioContext || window.webkitAudioContext)(
+            {
+                latencyHint: "interactive",
+            }
+        );
+
         navigator.mediaDevices
             .getUserMedia({
                 audio: {
@@ -178,23 +201,7 @@ class Tuner {
                 video: false,
             })
             .then((stream) => {
-                // run the necessary commands when permission was granted
-                // Create an AudioNode from the stream.
-                // this is the stream of sound received from microphone
-                this.mediaStreamSource =
-                    this.audioContext.createMediaStreamSource(stream);
-
-                // Connect it to the destination.
-                // this is like the tools needed for analaysing the sound buffer
-                // more info here: https://developer.mozilla.org/en-US/docs/Web/API/BaseAudioContext/createAnalyser
-                this.analyser = this.audioContext.createAnalyser();
-                this.analyser.fftSize = this.buflen;
-
-                // connect the analyser to audio stream
-                this.mediaStreamSource.connect(this.analyser);
-                this._state.loading = false;
-
-                this.updatePitch();
+                this.gotStream(stream)
             })
             .catch((err) => {
                 // display error if permission was not granted

@@ -1,5 +1,6 @@
 <script lang="ts">
-    import { Tuner, type Note, type State } from "../tuner/tuner";
+    import { writable } from "svelte/store";
+    import { Tuner, type Note, type State, TunerStateManager } from "../tuner";
 
     // array for storing the previous detected notes
     let noteHistory: Note[] = [];
@@ -13,9 +14,21 @@
     // boolean to control settings window display
     let showSettings: boolean = false;
 
-    const tuner = new Tuner();
+    const tunerState = writable<State>();
+
+    function getState(): State {
+        return $tunerState;
+    }
+
+    function setState(value: State): void {
+        return tunerState.set(value);
+    }
+
+    const stateManager = new TunerStateManager(getState, setState);
+
+    const tuner = new Tuner(stateManager);
     let state: State;
-    tuner.state.subscribe((v) => {
+    tunerState.subscribe((v) => {
         state = v;
     });
 

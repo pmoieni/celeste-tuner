@@ -27,10 +27,6 @@
     const stateManager = new TunerStateManager(getState, setState);
 
     const tuner = new Tuner(stateManager);
-    let state: State;
-    tunerState.subscribe((v) => {
-        state = v;
-    });
 
     async function start() {
         try {
@@ -43,25 +39,25 @@
 
 <div class="ac-demo">
     <div class="state">
-        {#if Math.abs(state.deviation) < 10}
+        {#if Math.abs($tunerState.deviation) < 10}
             <p
                 style="color: #00ff00; text-shadow: 0px 0px 30px #00ff00dd;"
                 class="note-state">
                 Spot on!
             </p>
-        {:else if Math.abs(state.deviation) < 20}
+        {:else if Math.abs($tunerState.deviation) < 20}
             <p
                 style="color: #1eff1e; text-shadow: 0px 0px 30px #1eff1edd;"
                 class="note-state">
                 Tuned!
             </p>
-        {:else if state.deviation <= 20}
+        {:else if $tunerState.deviation <= 20}
             <p
                 style="color: #ff0000; text-shadow: 0px 0px 30px #ff0000dd;"
                 class="note-state">
                 Low
             </p>
-        {:else if state.deviation >= 20}
+        {:else if $tunerState.deviation >= 20}
             <p
                 style="color: #ff0000; text-shadow: 0px 0px 30px #ff0000dd;"
                 class="note-state">
@@ -70,35 +66,38 @@
         {/if}
     </div>
     <div class="info">
-        <p class="deviation">Deviation: {state.deviation} Hz</p>
-        <p class="freq">Frequency: {state.pitch.toFixed(1)} Hz</p>
+        <p class="deviation">Deviation: {$tunerState.deviation} Hz</p>
+        <p class="freq">Frequency: {$tunerState.pitch.toFixed(1)} Hz</p>
     </div>
     <ul class="notes-display">
         {#each tuner.noteStrings as noteName}
             <li class="note-column">
                 <div
-                    class="note-column_indicator {noteName === state.note?.name
+                    class="note-column_indicator {noteName ===
+                    $tunerState.note?.name
                         ? 'indicated'
                         : ''}">
                     <div class="center" />
-                    {#if state.deviation > 0}
+                    {#if $tunerState.deviation > 0}
                         <div
                             class="deviation_high"
-                            style="height: {(Math.abs(state.deviation) / 50) *
+                            style="height: {(Math.abs($tunerState.deviation) /
+                                50) *
                                 100}%;" />
-                    {:else if state.deviation < 0}
+                    {:else if $tunerState.deviation < 0}
                         <div
                             class="deviation_low"
-                            style="height: {(Math.abs(state.deviation) / 50) *
+                            style="height: {(Math.abs($tunerState.deviation) /
+                                50) *
                                 100 -
                                 50}%;" />
                     {/if}
                 </div>
                 <p
-                    class="note-column_name {noteName === state.note?.name
+                    class="note-column_name {noteName === $tunerState.note?.name
                         ? 'indicated'
                         : ''}">
-                    {noteName + state.note.octave}
+                    {noteName + $tunerState.note.octave}
                 </p>
             </li>
         {/each}
@@ -107,10 +106,10 @@
         {#each noteHistory as note, i}
             {#if i === noteHistory.length - 1}
                 <p style="color: #00ff00; font-weight: bold;">
-                    {state.note?.name + state.note?.octave}
+                    {$tunerState.note?.name + $tunerState.note?.octave}
                 </p>
             {:else}
-                <p>{state.note?.name + state.note?.octave}</p>
+                <p>{$tunerState.note?.name + $tunerState.note?.octave}</p>
             {/if}
         {/each}
     </div>
@@ -138,18 +137,18 @@
             <div class="settings-con">
                 <div class="setting-sensitevity">
                     <p>
-                        Sensitivity (higher means lower sensitivity): {state.sensitivity}
+                        Sensitivity (higher means lower sensitivity): {$tunerState.sensitivity}
                     </p>
                     <input
                         type="range"
-                        bind:value={state.sensitivity}
+                        bind:value={$tunerState.sensitivity}
                         min="0.01"
                         max="0.2"
                         step="0.01" />
                 </div>
                 <button
                     on:click={() => {
-                        state.sensitivity = 0.02;
+                        $tunerState.sensitivity = 0.02;
                     }}>Reset Settings</button>
             </div>
         </button>

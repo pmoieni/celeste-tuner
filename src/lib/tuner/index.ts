@@ -16,7 +16,7 @@ interface State {
 type TunerStateGetFunction = () => State;
 type TunerStateSetFunction = (value: State) => void;
 
-class TunerAlgorithm {}
+type TunerAlgorithm = (buf: Float32Array, sampleRate: number) => number;
 
 class TunerStateManager {
     private getFunc: TunerStateGetFunction;
@@ -45,7 +45,6 @@ class Tuner {
     private readonly logOfTwo = Math.log(2);
     private audioContext: AudioContext;
     private analyser: AnalyserNode;
-    private mediaStreamSource: MediaStreamAudioSourceNode;
     private buf = new Float32Array(this.buflen);
     private state: TunerStateManager;
     private alg: TunerAlgorithm;
@@ -112,7 +111,7 @@ class Tuner {
         );
     };
 
-    private getPitch = (buf, sampleRate) => {
+    private getPitch = (buf: Float32Array, sampleRate: number): number => {
         // Implements the ACF2+ algorithm
         let SIZE = buf.length;
         let rms = 0;
@@ -182,13 +181,13 @@ class Tuner {
             // noteIdx % noteString.length(108) is one octave high (because octaves start from 0)
             // -12 decreases the octave
             this.state.setValue({
+                ...this.state.getValue(),
                 note: {
                     name: this.noteStrings[noteIdx % this.noteStrings.length],
                     octave: Math.floor(noteIdx / this.octaveLength) - 1,
                 },
                 pitch: pitch,
                 deviation: this.centsOffFromPitch(pitch, noteIdx), // deviation from original note frequency
-                ...this.state.getValue(),
             });
         }
         requestAnimationFrame(this.updatePitch);
@@ -198,7 +197,7 @@ class Tuner {
         // run the necessary commands when permission was granted
         // Create an AudioNode from the stream.
         // this is the stream of sound received from microphone
-        this.mediaStreamSource =
+        const mediaStreamSource =
             this.audioContext.createMediaStreamSource(stream);
 
         // Connect it to the destination.
@@ -208,10 +207,10 @@ class Tuner {
         this.analyser.fftSize = this.buflen;
 
         // connect the analyser to audio stream
-        this.mediaStreamSource.connect(this.analyser);
+        mediaStreamSource.connect(this.analyser);
         this.state.setValue({
-            loading: false,
             ...this.state.getValue(),
+            loading: false,
         });
 
         this.updatePitch();
@@ -222,7 +221,6 @@ class Tuner {
             window.webkitAudioContext)({
             latencyHint: "interactive",
         });
-        console.log(this.audioContext);
 
         let stream: MediaStream;
         try {
@@ -238,8 +236,8 @@ class Tuner {
             // display error if permission was not granted
             console.log("getUserMedia threw exception:" + error);
             this.state.setValue({
-                loading: false,
                 ...this.state.getValue(),
+                loading: false,
             });
         }
 

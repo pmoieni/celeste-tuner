@@ -7,18 +7,30 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "check": "svelte-check --tsconfig ./tsconfig.json"
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "test": "npx vitest",
+    "format": "prettier --write ./src/**/*.{js,svelte,html,ts}",
+    "lint": "eslint './src/**/*.{js,ts,svelte}'",
+    "lint:fix": "eslint --fix './src/**/*.{js,ts,svelte}'",
+    "prelint": "npm run format"
   },
   "devDependencies": {
-    "@sveltejs/vite-plugin-svelte": "^1.0.0-next.30",
-    "@tsconfig/svelte": "^2.0.1",
-    "sass": "^1.53.0",
-    "svelte": "^3.44.0",
-    "svelte-check": "^2.2.7",
-    "svelte-preprocess": "^4.9.8",
-    "tslib": "^2.3.1",
-    "typescript": "^4.5.4",
-    "vite": "^2.9.9",
-    "vite-plugin-pwa": "^0.12.2"
+    "@sveltejs/vite-plugin-svelte": "^2.4.2",
+    "@tsconfig/svelte": "^5.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.1.0",
+    "@typescript-eslint/parser": "^6.1.0",
+    "eslint": "^8.45.0",
+    "eslint-plugin-svelte3": "^4.0.0",
+    "prettier": "^3.0.0",
+    "prettier-plugin-svelte": "^3.0.0",
+    "sass": "^1.63.6",
+    "svelte": "^4.1.0",
+    "svelte-check": "^3.4.6",
+    "svelte-preprocess": "^5.0.4",
+    "tslib": "^2.6.0",
+    "typescript": "^5.1.6",
+    "vite": "^4.4.4",
+    "vite-plugin-pwa": "^0.16.4",
+    "vitest": "^0.33.0"
   }
 }

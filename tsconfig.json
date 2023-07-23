@@ -1,10 +1,11 @@
 {
   "extends": "@tsconfig/svelte/tsconfig.json",
   "compilerOptions": {
-    "target": "esnext",
+    "target": "ESNext",
     "useDefineForClassFields": true,
-    "module": "esnext",
+    "module": "ESNext",
     "resolveJsonModule": true,
+    "importsNotUsedAsValues": "remove",
     "baseUrl": ".",
     /**
      * Typecheck JS in `.svelte` and `.js` files by default.
@@ -14,7 +15,13 @@
      */
     "allowJs": true,
     "checkJs": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    // "paths": {
+    //   "@assets/*": ["src/assets/*"],
+    //   "@components/*": ["src/components/*"],
+    //   "@lib/*": ["src/lib/*"],
+    //   "@pages/*": ["src/pages/*"]
+    // }
   },
   "include": ["src/**/*.d.ts", "src/**/*.ts", "src/**/*.js", "src/**/*.svelte"],
   "references": [{ "path": "./tsconfig.node.json" }]

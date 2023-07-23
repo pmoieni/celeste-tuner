@@ -1,5 +1,3 @@
-import { get, writable } from "svelte/store";
-
 interface Note {
     name: string;
     octave: number;
@@ -86,7 +84,7 @@ class Tuner {
     // frequency of 440 will be converted to note 'A'
     // more info: https://alijamieson.co.uk/2021/12/20/describing-relationship-two-notes/#:~:text=An%20octave%20is%20an%20intervals,A5%20would%20be%20880%20Hz.
     private noteFromPitch = (frequency: number) => {
-        var noteNum =
+        const noteNum =
             this.octaveLength * (Math.log(frequency / 440) / this.logOfTwo);
         return Math.round(noteNum) + 69;
     };
@@ -172,11 +170,11 @@ class Tuner {
 
     private updatePitch = () => {
         this.analyser.getFloatTimeDomainData(this.buf);
-        let pitch = this.getPitch(this.buf, this.audioContext.sampleRate);
+        const pitch = this.getPitch(this.buf, this.audioContext.sampleRate);
 
         if (pitch !== -1) {
             // the index of the detected note
-            let noteIdx = this.noteFromPitch(pitch);
+            const noteIdx = this.noteFromPitch(pitch);
 
             // noteIdx % noteString.length(108) is one octave high (because octaves start from 0)
             // -12 decreases the octave
@@ -217,8 +215,7 @@ class Tuner {
     };
 
     init = async () => {
-        this.audioContext = new (window.AudioContext ||
-            window.webkitAudioContext)({
+        this.audioContext = new window.AudioContext({
             latencyHint: "interactive",
         });
 

@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { applyTheme, themeStore } from "./lib/core/theme";
     import Tuner from "./lib/components/Tuner.svelte";
 
     import { slide } from "svelte/transition";
@@ -40,14 +41,14 @@
         <button on:click={close}> Close </button>
     </div>
 {/if}
-<main>
+<main style={applyTheme($themeStore)}>
     <Tuner />
 </main>
 
 <style lang="scss">
     @font-face {
-        font-family: raleway;
-        src: url(./assets/fonts/Raleway-Regular.ttf);
+        font-family: inter;
+        src: url(./assets/fonts/Inter-Regular.ttf);
     }
 
     :global(*) {
@@ -57,23 +58,14 @@
     }
 
     :global(body) {
-        font-family: raleway;
-        color: #fff;
-        background-color: #000;
         overflow: hidden;
-    }
-
-    :global(button) {
-        background-color: transparent;
-        border: none;
-        outline: none;
     }
 
     main {
         width: 100vw;
         height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        background-color: var(--background);
+        font-family: inter;
+        color: var(--on-background);
     }
 </style>
